@@ -1,12 +1,300 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useRef, lazy, Suspense } from 'react';
+import { motion } from 'framer-motion';
+import Navbar from '@/components/Navbar';
+import HeroSection from '@/components/HeroSection';
+import FilterBar from '@/components/FilterBar';
+import PlaceCard from '@/components/PlaceCard';
+import ArtisanCard from '@/components/ArtisanCard';
+import TrailCard from '@/components/TrailCard';
+import CrowdIndicator from '@/components/CrowdIndicator';
+import Footer from '@/components/Footer';
+import { places, PlaceCategory, CrowdLevel } from '@/data/places';
+import { artisans } from '@/data/artisans';
+import { trails } from '@/data/trails';
+
+const MapView = lazy(() => import('@/components/MapView'));
 
 const Index = () => {
+  const [activeSection, setActiveSection] = useState('home');
+  const [categoryFilter, setCategoryFilter] = useState<PlaceCategory | 'all'>('all');
+  const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>();
+
+  // Refs for scrolling
+  const exploreRef = useRef<HTMLDivElement>(null);
+  const artisansRef = useRef<HTMLDivElement>(null);
+  const trailsRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  const handleNavigate = (section: string) => {
+    setActiveSection(section);
+    const refs: Record<string, React.RefObject<HTMLDivElement>> = {
+      explore: exploreRef,
+      artisans: artisansRef,
+      trails: trailsRef,
+      map: mapRef,
+    };
+    
+    if (section === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (refs[section]?.current) {
+      refs[section].current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const filteredPlaces = places.filter(place => {
+    const categoryMatch = categoryFilter === 'all' || place.category === categoryFilter;
+    const crowdMatch = crowdFilter === 'all' || place.crowdLevel === crowdFilter;
+    return categoryMatch && crowdMatch;
+  });
+
+  const handlePlaceSelect = (placeId: string) => {
+    setSelectedPlaceId(placeId);
+    handleNavigate('map');
+  };
+
+  const handleTrailViewOnMap = (trailId: string) => {
+    const trail = trails.find(t => t.id === trailId);
+    if (trail) {
+      // Find the first place that matches a trail stop
+      const matchingPlace = places.find(p => 
+        trail.stops.some(stop => p.name.includes(stop) || stop.includes(p.name.split(' ')[0]))
+      );
+      if (matchingPlace) {
+        setSelectedPlaceId(matchingPlace.id);
+      }
+    }
+    handleNavigate('map');
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
+      
+      {/* Hero Section */}
+      <HeroSection 
+        onExplore={() => handleNavigate('explore')} 
+        onViewMap={() => handleNavigate('map')} 
+      />
+
+      {/* Mission Statement */}
+      <section className="py-16 bg-muted">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Why Decentralise Tourism?
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              While Mysore Palace sees millions of visitors yearly, local artisans struggle for visibility, 
+              heritage streets remain unexplored, and cultural traditions fade. We're changing that by 
+              <span className="text-heritage-gold font-semibold"> redistributing tourist attention</span> to 
+              the people and places that make Mysuru truly special.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Explore Hidden Gems */}
+      <section ref={exploreRef} className="py-16 bg-background" id="explore">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Hidden Gems Explorer
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Discover lesser-known treasures across Mysuru. Filter by category and crowd level 
+              to find your perfect off-the-beaten-path experience.
+            </p>
+          </motion.div>
+
+          {/* Filters */}
+          <div className="mb-8">
+            <FilterBar
+              activeFilter={categoryFilter}
+              onFilterChange={setCategoryFilter}
+              crowdFilter={crowdFilter}
+              onCrowdFilterChange={setCrowdFilter}
+            />
+          </div>
+
+          {/* Results Count */}
+          <div className="mb-6">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-semibold text-foreground">{filteredPlaces.length}</span> hidden gems
+              {categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
+              {crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
+            </p>
+          </div>
+
+          {/* Place Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPlaces.map((place, index) => (
+              <PlaceCard
+                key={place.id}
+                place={place}
+                onClick={() => handlePlaceSelect(place.id)}
+                index={index}
+              />
+            ))}
+          </div>
+
+          {filteredPlaces.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                No places match your current filters. Try adjusting your selection.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Local Artisans */}
+      <section ref={artisansRef} className="py-16 bg-muted" id="artisans">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Meet Local Artisans
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Connect with master craftspeople who've dedicated their lives to preserving 
+              Mysuru's artistic heritage. Every purchase supports their livelihood and tradition.
+            </p>
+          </motion.div>
+
+          {/* Artisan Cards Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {artisans.map((artisan, index) => (
+              <ArtisanCard
+                key={artisan.id}
+                artisan={artisan}
+                onClick={() => handlePlaceSelect(artisan.id)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cultural Trails */}
+      <section ref={trailsRef} className="py-16 bg-background" id="trails">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Cultural Routes
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Curated walking and cycling routes that connect multiple experiences. 
+              Not just destinations, but journeys through Mysuru's living heritage.
+            </p>
+          </motion.div>
+
+          {/* Trail Cards */}
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {trails.map((trail, index) => (
+              <TrailCard
+                key={trail.id}
+                trail={trail}
+                onViewOnMap={() => handleTrailViewOnMap(trail.id)}
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Map Section */}
+      <section ref={mapRef} className="py-16 bg-muted" id="map">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Interactive Map
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Explore all hidden gems and artisan locations on our live map. 
+              Click markers for details and plan your decentralised tourism route.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Map */}
+            <div className="lg:col-span-2 h-[600px]">
+              <Suspense fallback={<div className="flex items-center justify-center h-full bg-muted rounded-xl"><p className="text-muted-foreground">Loading map...</p></div>}>
+                <MapView
+                  selectedPlaceId={selectedPlaceId}
+                  showArtisans={true}
+                  onPlaceSelect={handlePlaceSelect}
+                />
+              </Suspense>
+            </div>
+
+            {/* Crowd Indicator Sidebar */}
+            <div>
+              <CrowdIndicator onPlaceSelect={handlePlaceSelect} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 heritage-gradient">
+        <div className="container mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+              Be Part of the Change
+            </h2>
+            <p className="text-lg text-primary-foreground/80 mb-8">
+              Every visit to a hidden gem, every purchase from a local artisan, 
+              every step on a cultural trail contributes to sustainable tourism.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => handleNavigate('explore')}
+                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors shadow-gold"
+              >
+                Start Exploring
+              </button>
+              <button
+                onClick={() => handleNavigate('artisans')}
+                className="px-8 py-4 bg-white/10 text-primary-foreground rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20"
+              >
+                Meet Artisans
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 };
