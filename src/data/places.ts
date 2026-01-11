@@ -12,9 +12,78 @@ export interface Place {
   bestTime: string;
   image: string;
   highlights: string[];
+  redirectMessage?: string; // Optional message for high-crowd places to redirect visitors
 }
 
 export const places: Place[] = [
+  // ========== POPULAR PLACES (HIGH CROWD) - Used as anchors for redirection ==========
+  {
+    id: 'mysore-palace',
+    name: 'Mysore Palace',
+    description: 'Iconic royal palace and major tourist attraction. Consider nearby heritage streets for authentic experience.',
+    longDescription: 'The Mysore Palace is the most famous landmark in Karnataka. While magnificent, it experiences extremely high footfall. Our system recommends nearby heritage zones for a more intimate experience.',
+    category: 'heritage',
+    coordinates: [12.3052, 76.6552],
+    crowdLevel: 'high',
+    bestTime: 'Early morning (avoid weekends)',
+    image: '/placeholder.svg',
+    highlights: ['Royal architecture', 'Light show evenings', 'Historical significance', 'Museum collections'],
+    redirectMessage: 'This area is crowded. Explore nearby heritage streets to experience authentic Mysuru.'
+  },
+  {
+    id: 'chamundi-hill-temple',
+    name: 'Chamundi Hill Temple',
+    description: 'Sacred hilltop temple with panoramic views. Foothill villages offer spiritual alternatives.',
+    longDescription: 'Chamundi Hill Temple is a major pilgrimage site with heavy tourist traffic. The foothill villages and lower trail areas offer equally spiritual experiences with fewer crowds.',
+    category: 'culture',
+    coordinates: [12.2722, 76.6770],
+    crowdLevel: 'high',
+    bestTime: 'Very early morning (5-6 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Goddess Chamundeshwari', 'Nandi statue', 'City views', 'Temple architecture'],
+    redirectMessage: 'Discover spiritual and village life away from the peak crowd.'
+  },
+  {
+    id: 'brindavan-gardens',
+    name: 'Brindavan Gardens',
+    description: 'Famous musical fountain gardens. River ghats and heritage zones nearby offer peaceful alternatives.',
+    longDescription: 'Brindavan Gardens attracts massive crowds especially during evening fountain shows. Kaveri riverside ghats and Srirangapatna heritage areas provide serene alternatives.',
+    category: 'nature',
+    coordinates: [12.4214, 76.5729],
+    crowdLevel: 'high',
+    bestTime: 'Weekday mornings',
+    image: '/placeholder.svg',
+    highlights: ['Musical fountain', 'Landscaped gardens', 'KRS Dam views', 'Boating'],
+    redirectMessage: 'Explore heritage and river culture beyond the garden crowd.'
+  },
+  {
+    id: 'st-philomenas-church',
+    name: "St. Philomena's Church",
+    description: 'Neo-Gothic cathedral and major landmark. Historic neighbourhoods nearby offer authentic experiences.',
+    longDescription: 'One of the largest churches in Asia, St. Philomena\'s draws significant crowds. The surrounding Mandi Mohalla and Lashkar Mohalla areas preserve old Mysuru community heritage.',
+    category: 'heritage',
+    coordinates: [12.3186, 76.6553],
+    crowdLevel: 'high',
+    bestTime: 'Weekday mornings',
+    image: '/placeholder.svg',
+    highlights: ['Gothic architecture', 'Stained glass', 'Underground crypt', 'Twin spires'],
+    redirectMessage: 'Walk through historic neighbourhoods shaped by old Mysuru communities.'
+  },
+  {
+    id: 'mysuru-zoo',
+    name: 'Mysuru Zoo',
+    description: 'One of India\'s oldest zoos. Nearby lakes offer calm green spaces with rich birdlife.',
+    longDescription: 'Mysuru Zoo is extremely popular with families and tourists. For nature lovers, the nearby lakes - Karanji, Lingambudhi, and Kukkarahalli - offer peaceful alternatives with diverse wildlife.',
+    category: 'nature',
+    coordinates: [12.3019, 76.6631],
+    crowdLevel: 'high',
+    bestTime: 'Weekday mornings',
+    image: '/placeholder.svg',
+    highlights: ['Wildlife conservation', 'Historic zoo', 'Varied species', 'Educational tours'],
+    redirectMessage: 'Choose calm green spaces and bird habitats instead of busy attractions.'
+  },
+  
+  // ========== HIDDEN GEMS & ALTERNATIVES (LOW/MEDIUM CROWD) ==========
   {
     id: 'devaraja-market',
     name: 'Devaraja Market',
@@ -25,7 +94,8 @@ export const places: Place[] = [
     crowdLevel: 'medium',
     bestTime: 'Early morning (6-9 AM)',
     image: '/placeholder.svg',
-    highlights: ['Traditional flower vendors', 'Spice traders', 'Sandalwood products', 'Local snacks']
+    highlights: ['Traditional flower vendors', 'Spice traders', 'Sandalwood products', 'Local snacks'],
+    redirectMessage: 'Support artisans directly at their craft locations.'
   },
   {
     id: 'mandi-mohalla',
@@ -58,7 +128,7 @@ export const places: Place[] = [
     longDescription: 'Named after Emperor Ashoka, this tree-lined avenue showcases a blend of colonial and Mysuru architectural styles. Home to traditional sweet shops, silk stores, and iconic landmarks.',
     category: 'heritage',
     coordinates: [12.3052, 76.6512],
-    crowdLevel: 'medium',
+    crowdLevel: 'low',
     bestTime: 'Evening (4-7 PM)',
     image: '/placeholder.svg',
     highlights: ['Colonial architecture', 'Traditional sweet shops', 'Silk emporiums', 'Street photography']
@@ -76,16 +146,88 @@ export const places: Place[] = [
     highlights: ['Village homestays', 'Traditional farming', 'Local cuisine', 'Rural crafts']
   },
   {
-    id: 'srirangapatna-outskirts',
+    id: 'nandi-viewpoint',
+    name: 'Nandi Viewpoint - Lower Trail',
+    description: 'Peaceful lower trail area near the iconic Nandi statue with scenic views.',
+    longDescription: 'Instead of the crowded hilltop, explore the lower trail areas around the Nandi statue. Enjoy panoramic views, quiet meditation spots, and connect with local devotees.',
+    category: 'culture',
+    coordinates: [12.2756, 76.6745],
+    crowdLevel: 'low',
+    bestTime: 'Early morning (6-8 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Scenic views', 'Quiet trails', 'Local devotees', 'Nature walks']
+  },
+  {
+    id: 'srirangapatna-heritage',
     name: 'Srirangapatna Heritage Zone',
-    description: 'Historic island town with Tipu Sultan\'s legacy, ancient temples, and river views.',
-    longDescription: 'Beyond the main fort, explore lesser-known monuments, riverside ghats, and local communities. The outskirts offer peaceful walks along the Kaveri river and authentic local experiences.',
+    description: "Historic island town with Tipu Sultan's legacy, ancient temples, and river views.",
+    longDescription: "Beyond the main fort, explore lesser-known monuments, riverside ghats, and local communities. The outskirts offer peaceful walks along the Kaveri river and authentic local experiences.",
     category: 'heritage',
     coordinates: [12.4181, 76.6947],
     crowdLevel: 'low',
     bestTime: 'Morning or late afternoon',
     image: '/placeholder.svg',
     highlights: ['Riverside ghats', 'Hidden temples', 'Local fishing community', 'Bird sanctuary nearby']
+  },
+  {
+    id: 'kaveri-riverside-ghats',
+    name: 'Kaveri Riverside Ghats',
+    description: 'Serene riverbanks with ancient bathing ghats and peaceful walking paths.',
+    longDescription: 'These traditional ghats along the Kaveri offer tranquil morning experiences. Watch local rituals, enjoy the river breeze, and explore the surrounding heritage areas.',
+    category: 'nature',
+    coordinates: [12.4156, 76.6889],
+    crowdLevel: 'low',
+    bestTime: 'Early morning (5-8 AM)',
+    image: '/placeholder.svg',
+    highlights: ['River views', 'Morning rituals', 'Bird watching', 'Peaceful walks']
+  },
+  {
+    id: 'ranganathittu-outskirts',
+    name: 'Ranganathittu Outskirts Walking Paths',
+    description: 'Quiet nature trails around the bird sanctuary with diverse flora and fauna.',
+    longDescription: 'Beyond the main sanctuary boat rides, explore the lesser-known walking paths. Perfect for birdwatchers and nature enthusiasts seeking solitude.',
+    category: 'nature',
+    coordinates: [12.4233, 76.6567],
+    crowdLevel: 'low',
+    bestTime: 'Dawn (5:30-7 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Walking trails', 'Bird watching', 'Nature photography', 'Quiet meditation']
+  },
+  {
+    id: 'lashkar-mohalla',
+    name: 'Lashkar Mohalla - Old Mysuru Streets',
+    description: 'Historic military quarter with traditional homes, local eateries, and community life.',
+    longDescription: 'Once home to the royal army, this neighborhood preserves centuries of Mysuru heritage. Explore narrow lanes, interact with local communities, and discover hidden stories.',
+    category: 'heritage',
+    coordinates: [12.3145, 76.6478],
+    crowdLevel: 'low',
+    bestTime: 'Morning (8-11 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Historic homes', 'Local eateries', 'Community stories', 'Heritage architecture']
+  },
+  {
+    id: 'jaganmohan-art-lane',
+    name: 'Jaganmohan Art Lane',
+    description: 'Quiet cultural stretch near Jaganmohan Palace with art galleries and craft shops.',
+    longDescription: 'This peaceful lane adjacent to the Jaganmohan Palace art gallery features small studios, traditional craft shops, and local artists. A perfect escape from palace crowds.',
+    category: 'art',
+    coordinates: [12.3067, 76.6523],
+    crowdLevel: 'low',
+    bestTime: 'Afternoon (2-5 PM)',
+    image: '/placeholder.svg',
+    highlights: ['Art galleries', 'Local artists', 'Craft shops', 'Quiet atmosphere']
+  },
+  {
+    id: 'karanji-lake',
+    name: 'Karanji Lake',
+    description: 'Large lake with butterfly park, nature trails, and diverse birdlife.',
+    longDescription: 'Located behind the zoo, Karanji Lake offers a peaceful alternative. The butterfly park, walk-through aviary, and nature trails provide intimate nature experiences.',
+    category: 'nature',
+    coordinates: [12.2978, 76.6656],
+    crowdLevel: 'low',
+    bestTime: 'Early morning (6-8 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Butterfly park', 'Walk-through aviary', 'Boating', 'Bird watching']
   },
   {
     id: 'silk-weaving-kuvempunagar',
@@ -158,6 +300,30 @@ export const places: Place[] = [
     bestTime: 'Evening (5-9 PM)',
     image: '/placeholder.svg',
     highlights: ['Mysore Pak origins', 'Filter coffee', 'Traditional thalis', 'Street snacks']
+  },
+  {
+    id: 'local-flower-yards',
+    name: 'Local Flower Yards',
+    description: 'Early morning flower markets where vendors prepare garlands and offerings.',
+    longDescription: 'Before Devaraja Market gets crowded, the local flower yards buzz with activity. Watch skilled artisans create intricate garlands, experience the fragrance of fresh jasmine, and witness authentic market culture.',
+    category: 'culture',
+    coordinates: [12.3089, 76.6498],
+    crowdLevel: 'low',
+    bestTime: 'Very early morning (4-7 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Fresh flowers', 'Garland making', 'Morning rituals', 'Authentic culture']
+  },
+  {
+    id: 'local-bakeries-craft-stores',
+    name: 'Heritage Bakeries & Craft Lane',
+    description: 'Century-old bakeries and traditional craft stores near St. Philomenas area.',
+    longDescription: 'These family-run establishments have served Mysuru for generations. Sample traditional breads, biscuits, and discover handmade crafts that tell stories of the local community.',
+    category: 'food',
+    coordinates: [12.3178, 76.6534],
+    crowdLevel: 'low',
+    bestTime: 'Morning (8-11 AM)',
+    image: '/placeholder.svg',
+    highlights: ['Traditional bakeries', 'Handmade crafts', 'Local stories', 'Community heritage']
   }
 ];
 
