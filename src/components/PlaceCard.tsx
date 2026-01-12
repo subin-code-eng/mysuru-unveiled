@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Clock, MapPin } from 'lucide-react';
 import { Place, getCrowdColor, getCategoryIcon, getCategoryColor } from '@/data/places';
+import { getPlaceImage } from '@/data/placeImages';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
@@ -11,6 +12,8 @@ interface PlaceCardProps {
 }
 
 const PlaceCard = ({ place, onClick, index = 0 }: PlaceCardProps) => {
+  const placeImage = getPlaceImage(place.id);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,6 +29,13 @@ const PlaceCard = ({ place, onClick, index = 0 }: PlaceCardProps) => {
         <div className="relative h-48 overflow-hidden bg-muted">
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent z-10" />
           
+          {/* Place Image */}
+          <img 
+            src={placeImage} 
+            alt={place.name}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          
           {/* Category Badge */}
           <div className="absolute top-3 left-3 z-20">
             <Badge className={`${getCategoryColor(place.category)} text-xs font-medium`}>
@@ -38,12 +48,6 @@ const PlaceCard = ({ place, onClick, index = 0 }: PlaceCardProps) => {
             <Badge className={`${getCrowdColor(place.crowdLevel)} text-xs font-medium capitalize`}>
               {place.crowdLevel} crowd
             </Badge>
-          </div>
-
-          {/* Placeholder Pattern */}
-          <div className="absolute inset-0 heritage-gradient opacity-20" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-6xl opacity-50">{getCategoryIcon(place.category)}</span>
           </div>
         </div>
 
