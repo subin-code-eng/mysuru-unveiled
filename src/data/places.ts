@@ -13,6 +13,7 @@ export interface Place {
   image: string;
   highlights: string[];
   redirectMessage?: string; // Optional message for high-crowd places to redirect visitors
+  nearbyAlternatives?: string[]; // IDs of nearby low-crowd alternatives
 }
 
 export const places: Place[] = [
@@ -28,7 +29,8 @@ export const places: Place[] = [
     bestTime: 'Early morning (avoid weekends)',
     image: '/placeholder.svg',
     highlights: ['Royal architecture', 'Light show evenings', 'Historical significance', 'Museum collections'],
-    redirectMessage: 'This area is crowded. Explore nearby heritage streets to experience authentic Mysuru.'
+    redirectMessage: 'This area is crowded. Explore nearby heritage streets to experience authentic Mysuru.',
+    nearbyAlternatives: ['ashoka-road-heritage', 'agraharas-brahmapura', 'jaganmohan-art-lane']
   },
   {
     id: 'chamundi-hill-temple',
@@ -41,7 +43,8 @@ export const places: Place[] = [
     bestTime: 'Very early morning (5-6 AM)',
     image: '/placeholder.svg',
     highlights: ['Goddess Chamundeshwari', 'Nandi statue', 'City views', 'Temple architecture'],
-    redirectMessage: 'Discover spiritual and village life away from the peak crowd.'
+    redirectMessage: 'Discover spiritual and village life away from the peak crowd.',
+    nearbyAlternatives: ['chamundi-foothill-villages', 'nandi-viewpoint', 'wood-carving-somanathapura']
   },
   {
     id: 'brindavan-gardens',
@@ -54,7 +57,8 @@ export const places: Place[] = [
     bestTime: 'Weekday mornings',
     image: '/placeholder.svg',
     highlights: ['Musical fountain', 'Landscaped gardens', 'KRS Dam views', 'Boating'],
-    redirectMessage: 'Explore heritage and river culture beyond the garden crowd.'
+    redirectMessage: 'Explore heritage and river culture beyond the garden crowd.',
+    nearbyAlternatives: ['srirangapatna-heritage', 'kaveri-riverside-ghats', 'ranganathittu-outskirts']
   },
   {
     id: 'st-philomenas-church',
@@ -67,7 +71,8 @@ export const places: Place[] = [
     bestTime: 'Weekday mornings',
     image: '/placeholder.svg',
     highlights: ['Gothic architecture', 'Stained glass', 'Underground crypt', 'Twin spires'],
-    redirectMessage: 'Walk through historic neighbourhoods shaped by old Mysuru communities.'
+    redirectMessage: 'Walk through historic neighbourhoods shaped by old Mysuru communities.',
+    nearbyAlternatives: ['mandi-mohalla', 'lashkar-mohalla', 'local-bakeries-craft-stores']
   },
   {
     id: 'mysuru-zoo',
@@ -80,7 +85,8 @@ export const places: Place[] = [
     bestTime: 'Weekday mornings',
     image: '/placeholder.svg',
     highlights: ['Wildlife conservation', 'Historic zoo', 'Varied species', 'Educational tours'],
-    redirectMessage: 'Choose calm green spaces and bird habitats instead of busy attractions.'
+    redirectMessage: 'Choose calm green spaces and bird habitats instead of busy attractions.',
+    nearbyAlternatives: ['karanji-lake', 'lingambudhi-lake', 'kukkarahalli-lake']
   },
   
   // ========== HIDDEN GEMS & ALTERNATIVES (LOW/MEDIUM CROWD) ==========
@@ -333,6 +339,20 @@ export const getCrowdColor = (level: CrowdLevel): string => {
     case 'medium': return 'bg-secondary text-secondary-foreground';
     case 'high': return 'bg-primary text-primary-foreground';
   }
+};
+
+// Get nearby alternatives for a high-crowd place
+export const getNearbyAlternatives = (placeId: string): Place[] => {
+  const place = places.find(p => p.id === placeId);
+  if (!place || !place.nearbyAlternatives) return [];
+  return place.nearbyAlternatives
+    .map(altId => places.find(p => p.id === altId))
+    .filter((p): p is Place => p !== undefined);
+};
+
+// Get high-crowd places with their alternatives
+export const getHighCrowdPlaces = (): Place[] => {
+  return places.filter(p => p.crowdLevel === 'high' && p.nearbyAlternatives);
 };
 
 export const getCategoryIcon = (category: PlaceCategory): string => {
