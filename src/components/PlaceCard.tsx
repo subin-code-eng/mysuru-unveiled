@@ -81,6 +81,15 @@ const PlaceCard = ({ place, onClick, index = 0 }: PlaceCardProps) => {
               </span>
             )}
           </div>
+
+          {/* Redirect Message for High Crowd Places */}
+          {place.crowdLevel === 'high' && place.redirectMessage && (
+            <div className="mt-3 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+              <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
+                💡 {place.redirectMessage}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
