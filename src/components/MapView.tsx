@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { places, getCategoryIcon, getNearbyAlternatives, Place } from '@/data/places';
-import { artisans, getCraftIcon } from '@/data/artisans';
+import { artisans, getCraftIcon, Artisan } from '@/data/artisans';
 
 // Fix for default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -24,6 +24,7 @@ const colors: Record<string, string> = {
   nature: '#2d6a4f',
   food: '#c96442',
   culture: '#d4a843',
+  artisan: '#d4a843',
 };
 
 const createCustomIcon = (emoji: string, color: string, isHighlighted = false, isHighCrowd = false) => {
@@ -43,7 +44,8 @@ const createCustomIcon = (emoji: string, color: string, isHighlighted = false, i
 const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<Map<string, L.Marker>>(new Map());
+  const placeMarkersRef = useRef<Map<string, L.Marker>>(new Map());
+  const artisanMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const linesRef = useRef<L.Polyline[]>([]);
   const [activePlace, setActivePlace] = useState<Place | null>(null);
   const [alternatives, setAlternatives] = useState<Place[]>([]);
@@ -90,14 +92,14 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
         }
       });
 
-      markersRef.current.set(place.id, marker);
+      placeMarkersRef.current.set(place.id, marker);
     });
 
     // Add artisan markers
     if (showArtisans) {
       artisans.forEach((artisan) => {
         const marker = L.marker(artisan.coordinates, {
-          icon: createCustomIcon(getCraftIcon(artisan.craft), '#d4a843'),
+          icon: createCustomIcon(getCraftIcon(artisan.craft), colors.artisan),
         }).addTo(map);
 
         marker.bindPopup(`
@@ -105,8 +107,15 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
             <h3 class="font-semibold mb-1">${artisan.name}</h3>
             <p class="text-xs text-amber-600 mb-1 capitalize">${artisan.craft} Artisan</p>
             <p class="text-xs text-gray-600">${artisan.specialty}</p>
+            <p class="text-xs text-gray-500 mt-1">📍 ${artisan.location}</p>
           </div>
         `);
+
+        marker.on('click', () => {
+          onPlaceSelect?.(artisan.id);
+        });
+
+        artisanMarkersRef.current.set(artisan.id, marker);
       });
     }
 
@@ -118,7 +127,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
     };
   }, [showArtisans, onPlaceSelect]);
 
-  // Handle selected place and draw connection lines
+  // Handle selected place/artisan and draw connection lines
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -127,8 +136,8 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
     linesRef.current.forEach(line => line.remove());
     linesRef.current = [];
 
-    // Reset all markers to default style
-    markersRef.current.forEach((marker, id) => {
+    // Reset all place markers to default style
+    placeMarkersRef.current.forEach((marker, id) => {
       const place = places.find(p => p.id === id);
       if (place) {
         const isHighCrowd = place.crowdLevel === 'high';
@@ -136,7 +145,16 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
       }
     });
 
+    // Reset all artisan markers to default style
+    artisanMarkersRef.current.forEach((marker, id) => {
+      const artisan = artisans.find(a => a.id === id);
+      if (artisan) {
+        marker.setIcon(createCustomIcon(getCraftIcon(artisan.craft), colors.artisan, false, false));
+      }
+    });
+
     if (selectedPlaceId) {
+      // Check if it's a place
       const selectedPlace = places.find(p => p.id === selectedPlaceId);
       if (selectedPlace) {
         // If it's a high-crowd place, show alternatives
@@ -146,14 +164,13 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
           setAlternatives(alts);
 
           // Highlight the selected high-crowd marker
-          const mainMarker = markersRef.current.get(selectedPlaceId);
+          const mainMarker = placeMarkersRef.current.get(selectedPlaceId);
           if (mainMarker) {
             mainMarker.setIcon(createCustomIcon(getCategoryIcon(selectedPlace.category), '#ef4444', true, true));
           }
 
           // Draw lines to alternatives and highlight them
           alts.forEach(alt => {
-            // Draw connection line
             const line = L.polyline(
               [selectedPlace.coordinates, alt.coordinates],
               {
@@ -165,8 +182,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
             ).addTo(map);
             linesRef.current.push(line);
 
-            // Highlight alternative marker
-            const altMarker = markersRef.current.get(alt.id);
+            const altMarker = placeMarkersRef.current.get(alt.id);
             if (altMarker) {
               altMarker.setIcon(createCustomIcon(getCategoryIcon(alt.category), '#22c55e', true, false));
             }
@@ -181,11 +197,28 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
           setActivePlace(null);
           setAlternatives([]);
           map.setView(selectedPlace.coordinates, 14);
-          const marker = markersRef.current.get(selectedPlaceId);
+          const marker = placeMarkersRef.current.get(selectedPlaceId);
           if (marker) {
             marker.openPopup();
           }
         }
+        return;
+      }
+
+      // Check if it's an artisan
+      const selectedArtisan = artisans.find(a => a.id === selectedPlaceId);
+      if (selectedArtisan) {
+        setActivePlace(null);
+        setAlternatives([]);
+        
+        // Highlight the artisan marker
+        const artisanMarker = artisanMarkersRef.current.get(selectedPlaceId);
+        if (artisanMarker) {
+          artisanMarker.setIcon(createCustomIcon(getCraftIcon(selectedArtisan.craft), '#22c55e', true, false));
+          map.setView(selectedArtisan.coordinates, 15);
+          artisanMarker.openPopup();
+        }
+        return;
       }
     }
   }, [selectedPlaceId]);
