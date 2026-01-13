@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { MapPin, Clock, Quote } from 'lucide-react';
 import { Artisan, getCraftIcon, getCraftColor } from '@/data/artisans';
+import { getArtisanImage } from '@/data/artisanImages';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface ArtisanCardProps {
   artisan: Artisan;
@@ -11,6 +13,8 @@ interface ArtisanCardProps {
 }
 
 const ArtisanCard = ({ artisan, onClick, index = 0 }: ArtisanCardProps) => {
+  const artisanImage = getArtisanImage(artisan.id);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -22,51 +26,59 @@ const ArtisanCard = ({ artisan, onClick, index = 0 }: ArtisanCardProps) => {
         className="group cursor-pointer overflow-hidden border-border hover:shadow-elevated transition-all duration-300 h-full"
         onClick={onClick}
       >
-        <CardContent className="p-6">
-          {/* Header */}
-          <div className="flex items-start gap-4 mb-4">
-            {/* Avatar */}
-            <div className="w-16 h-16 rounded-full gold-gradient flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl">{getCraftIcon(artisan.craft)}</span>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <h3 className="font-serif text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                {artisan.name}
-              </h3>
-              <Badge className={`${getCraftColor(artisan.craft)} text-xs font-medium mt-1 capitalize`}>
-                {artisan.craft}
-              </Badge>
-            </div>
+        {/* Image Section */}
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={artisanImage}
+            alt={`${artisan.name} - ${artisan.specialty}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          
+          {/* Craft Badge Overlay */}
+          <div className="absolute top-3 left-3">
+            <Badge className={`${getCraftColor(artisan.craft)} text-xs font-medium capitalize shadow-lg`}>
+              <span className="mr-1">{getCraftIcon(artisan.craft)}</span>
+              {artisan.craft}
+            </Badge>
           </div>
 
+          {/* Name Overlay */}
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="font-serif text-lg font-semibold text-white drop-shadow-lg line-clamp-1">
+              {artisan.name}
+            </h3>
+          </div>
+        </div>
+
+        <CardContent className="p-4">
           {/* Specialty */}
-          <p className="text-sm font-medium text-foreground mb-2">
+          <p className="text-sm font-medium text-foreground mb-2 line-clamp-2">
             {artisan.specialty}
           </p>
 
           {/* Story Quote */}
-          <div className="relative bg-muted rounded-lg p-4 mb-4">
-            <Quote className="absolute top-2 left-2 w-4 h-4 text-heritage-gold opacity-50" />
-            <p className="text-sm text-muted-foreground italic pl-4 line-clamp-3">
+          <div className="relative bg-muted rounded-lg p-3 mb-3">
+            <Quote className="absolute top-2 left-2 w-3 h-3 text-heritage-gold opacity-50" />
+            <p className="text-xs text-muted-foreground italic pl-4 line-clamp-2">
               "{artisan.story}"
             </p>
           </div>
 
           {/* Info */}
-          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-3">
             <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+              <Clock className="w-3 h-3" />
               <span>{artisan.experience}</span>
             </div>
             <div className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
+              <MapPin className="w-3 h-3" />
               <span className="line-clamp-1">{artisan.location}</span>
             </div>
           </div>
 
           {/* Products */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {artisan.products.slice(0, 3).map((product) => (
               <span 
                 key={product}
@@ -76,6 +88,20 @@ const ArtisanCard = ({ artisan, onClick, index = 0 }: ArtisanCardProps) => {
               </span>
             ))}
           </div>
+
+          {/* View on Map Button */}
+          <Button 
+            variant="outline"
+            size="sm"
+            className="w-full border-heritage-gold/30 text-heritage-maroon hover:bg-heritage-gold/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            <MapPin className="w-3.5 h-3.5 mr-2" />
+            View on Map
+          </Button>
         </CardContent>
       </Card>
     </motion.div>

@@ -53,6 +53,15 @@ const Index = () => {
     handleNavigate('map');
   };
 
+  const handleArtisanSelect = (artisanId: string) => {
+    // Find artisan and navigate to map with their location
+    const artisan = artisans.find(a => a.id === artisanId);
+    if (artisan) {
+      setSelectedPlaceId(artisanId);
+      handleNavigate('map');
+    }
+  };
+
   const handleTrailViewOnMap = (trailId: string) => {
     const trail = trails.find(t => t.id === trailId);
     if (trail) {
@@ -182,7 +191,7 @@ const Index = () => {
               <ArtisanCard
                 key={artisan.id}
                 artisan={artisan}
-                onClick={() => handlePlaceSelect(artisan.id)}
+                onClick={() => handleArtisanSelect(artisan.id)}
                 index={index}
               />
             ))}
