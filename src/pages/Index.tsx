@@ -63,38 +63,8 @@ const Index = () => {
   };
 
   const handleTrailViewOnMap = (trailId: string) => {
-    const trail = trails.find(t => t.id === trailId);
-    if (trail) {
-      // Find a matching place or artisan for the trail's starting point
-      // Check places first using fuzzy matching
-      const matchingPlace = places.find(p => {
-        const placeName = p.name.toLowerCase();
-        const placeId = p.id.toLowerCase();
-        return trail.stops.some(stop => {
-          const stopLower = stop.toLowerCase();
-          return placeName.includes(stopLower.split(' ')[0]) || 
-                 stopLower.includes(placeName.split(' ')[0]) ||
-                 placeId.includes(stopLower.split(' ')[0].replace(/[^a-z]/g, ''));
-        });
-      });
-
-      if (matchingPlace) {
-        setSelectedPlaceId(matchingPlace.id);
-      } else {
-        // Try matching with artisans
-        const matchingArtisan = artisans.find(a => {
-          const location = a.location.toLowerCase();
-          return trail.stops.some(stop => {
-            const stopLower = stop.toLowerCase();
-            return location.includes(stopLower.split(' ')[0]) || 
-                   stopLower.includes(location.split(' ')[0]);
-          });
-        });
-        if (matchingArtisan) {
-          setSelectedPlaceId(matchingArtisan.id);
-        }
-      }
-    }
+    // Pass trail ID directly - MapView will handle showing all related places
+    setSelectedPlaceId(`trail:${trailId}`);
     handleNavigate('map');
   };
 

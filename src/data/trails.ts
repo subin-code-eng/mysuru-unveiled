@@ -10,6 +10,8 @@ export interface Trail {
   bestFor: string[];
   startPoint: string;
   coordinates: [number, number];
+  relatedPlaceIds: string[]; // IDs of places on this trail
+  relatedArtisanIds?: string[]; // IDs of artisans on this trail
 }
 
 export const trails: Trail[] = [
@@ -24,7 +26,9 @@ export const trails: Trail[] = [
     highlights: ['Live weaving demonstration', 'Meet master artisans', 'Understand silk grading', 'Direct purchase opportunity'],
     bestFor: ['Art enthusiasts', 'Culture seekers', 'Shoppers'],
     startPoint: 'Kuvempunagar Silk Cluster',
-    coordinates: [12.2867, 76.6189]
+    coordinates: [12.2867, 76.6189],
+    relatedPlaceIds: ['silk-weaving-kuvempunagar', 'chamundi-foothill-villages', 'devaraja-market'],
+    relatedArtisanIds: ['rajanna-silk', 'gowramma-silk']
   },
   {
     id: 'heritage-street-walk',
@@ -37,7 +41,8 @@ export const trails: Trail[] = [
     highlights: ['Heritage architecture', 'Traditional eateries', 'Local interactions', 'Temple visits'],
     bestFor: ['History lovers', 'Photographers', 'Cultural explorers'],
     startPoint: 'Mandi Mohalla',
-    coordinates: [12.3108, 76.6489]
+    coordinates: [12.3108, 76.6489],
+    relatedPlaceIds: ['mandi-mohalla', 'ashoka-road-heritage', 'agraharas-brahmapura', 'gandhi-square-food-street']
   },
   {
     id: 'nature-lakes-trail',
@@ -50,7 +55,8 @@ export const trails: Trail[] = [
     highlights: ['180+ bird species', 'Lotus blooms', 'Sunrise/sunset views', 'Nature photography'],
     bestFor: ['Nature lovers', 'Birdwatchers', 'Photographers', 'Wellness seekers'],
     startPoint: 'Kukkarahalli Lake',
-    coordinates: [12.3167, 76.6333]
+    coordinates: [12.3167, 76.6333],
+    relatedPlaceIds: ['kukkarahalli-lake', 'lingambudhi-lake', 'chamundi-foothill-villages']
   },
   {
     id: 'artisan-trail',
@@ -63,7 +69,9 @@ export const trails: Trail[] = [
     highlights: ['Multiple craft forms', 'Hands-on workshops', 'Artisan stories', 'Authentic purchases'],
     bestFor: ['Art collectors', 'Cultural enthusiasts', 'Craft learners'],
     startPoint: 'Kuvempunagar',
-    coordinates: [12.2867, 76.6189]
+    coordinates: [12.2867, 76.6189],
+    relatedPlaceIds: ['silk-weaving-kuvempunagar', 'wood-carving-somanathapura', 'pottery-cluster-bannimantap'],
+    relatedArtisanIds: ['rajanna-silk', 'nagesh-woodcarving', 'lakshmi-pottery', 'venkatesh-painting', 'chandrashekar-sandalwood']
   },
   {
     id: 'food-heritage-trail',
@@ -76,7 +84,8 @@ export const trails: Trail[] = [
     highlights: ['Original Mysore Pak', 'Filter coffee culture', 'Street food exploration', 'Traditional thalis'],
     bestFor: ['Foodies', 'Culinary explorers', 'Family groups'],
     startPoint: 'Gandhi Square',
-    coordinates: [12.3078, 76.6556]
+    coordinates: [12.3078, 76.6556],
+    relatedPlaceIds: ['gandhi-square-food-street', 'devaraja-market', 'ashoka-road-heritage', 'local-bakeries-craft-stores']
   }
 ];
 
