@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Clock, MapPin, Route, Users } from 'lucide-react';
 import { Trail, getTrailIcon } from '@/data/trails';
+import { getTrailImage } from '@/data/trailImages';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,8 @@ interface TrailCardProps {
 }
 
 const TrailCard = ({ trail, onViewOnMap, index = 0 }: TrailCardProps) => {
+  const trailImage = getTrailImage(trail.id);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -21,10 +24,32 @@ const TrailCard = ({ trail, onViewOnMap, index = 0 }: TrailCardProps) => {
     >
       <Card className="group overflow-hidden border-border hover:shadow-elevated transition-all duration-300">
         <CardContent className="p-0">
-          <div className="flex flex-col md:flex-row">
-            {/* Icon Section */}
-            <div className="md:w-32 p-6 heritage-gradient flex items-center justify-center">
-              <span className="text-5xl">{getTrailIcon(trail.id)}</span>
+          <div className="flex flex-col lg:flex-row">
+            {/* Image Section */}
+            <div className="lg:w-72 h-48 lg:h-auto relative overflow-hidden">
+              <img
+                src={trailImage}
+                alt={trail.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent lg:bg-gradient-to-b" />
+              
+              {/* Trail Icon Overlay */}
+              <div className="absolute top-4 left-4 w-14 h-14 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                <span className="text-3xl">{getTrailIcon(trail.id)}</span>
+              </div>
+
+              {/* Stats Overlay for Mobile */}
+              <div className="absolute bottom-3 left-3 flex gap-2 lg:hidden">
+                <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-foreground text-xs">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {trail.duration}
+                </Badge>
+                <Badge variant="secondary" className="bg-background/90 backdrop-blur-sm text-foreground text-xs">
+                  <Route className="w-3 h-3 mr-1" />
+                  {trail.distance}
+                </Badge>
+              </div>
             </div>
 
             {/* Content Section */}
@@ -44,8 +69,8 @@ const TrailCard = ({ trail, onViewOnMap, index = 0 }: TrailCardProps) => {
                 {trail.description}
               </p>
 
-              {/* Stats */}
-              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground mb-4">
+              {/* Stats - Hidden on mobile, shown on desktop */}
+              <div className="hidden lg:flex flex-wrap gap-4 text-xs text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-heritage-gold" />
                   <span>{trail.duration}</span>
@@ -100,7 +125,7 @@ const TrailCard = ({ trail, onViewOnMap, index = 0 }: TrailCardProps) => {
                 size="sm"
               >
                 <MapPin className="w-4 h-4 mr-2" />
-                View on Map
+                View Trail on Map
               </Button>
             </div>
           </div>
