@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { places, getCategoryIcon, getNearbyAlternatives, Place } from '@/data/places';
-import { artisans, getCraftIcon, Artisan } from '@/data/artisans';
+import { artisans, getCraftIcon } from '@/data/artisans';
+import { trails, getTrailIcon, Trail } from '@/data/trails';
 
 // Fix for default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -25,6 +26,7 @@ const colors: Record<string, string> = {
   food: '#c96442',
   culture: '#d4a843',
   artisan: '#d4a843',
+  trail: '#8b5cf6',
 };
 
 const createCustomIcon = (emoji: string, color: string, isHighlighted = false, isHighCrowd = false) => {
@@ -49,6 +51,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
   const linesRef = useRef<L.Polyline[]>([]);
   const [activePlace, setActivePlace] = useState<Place | null>(null);
   const [alternatives, setAlternatives] = useState<Place[]>([]);
+  const [activeTrail, setActiveTrail] = useState<Trail | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -90,6 +93,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
           setActivePlace(null);
           setAlternatives([]);
         }
+        setActiveTrail(null);
       });
 
       placeMarkersRef.current.set(place.id, marker);
@@ -113,6 +117,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
 
         marker.on('click', () => {
           onPlaceSelect?.(artisan.id);
+          setActiveTrail(null);
         });
 
         artisanMarkersRef.current.set(artisan.id, marker);
@@ -127,7 +132,7 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
     };
   }, [showArtisans, onPlaceSelect]);
 
-  // Handle selected place/artisan and draw connection lines
+  // Handle selected place/artisan/trail and draw connection lines
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -153,72 +158,127 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
       }
     });
 
-    if (selectedPlaceId) {
-      // Check if it's a place
-      const selectedPlace = places.find(p => p.id === selectedPlaceId);
-      if (selectedPlace) {
-        // If it's a high-crowd place, show alternatives
-        if (selectedPlace.crowdLevel === 'high' && selectedPlace.nearbyAlternatives) {
-          setActivePlace(selectedPlace);
-          const alts = getNearbyAlternatives(selectedPlaceId);
-          setAlternatives(alts);
+    if (!selectedPlaceId) return;
 
-          // Highlight the selected high-crowd marker
-          const mainMarker = placeMarkersRef.current.get(selectedPlaceId);
-          if (mainMarker) {
-            mainMarker.setIcon(createCustomIcon(getCategoryIcon(selectedPlace.category), '#ef4444', true, true));
+    // Check if it's a trail selection
+    if (selectedPlaceId.startsWith('trail:')) {
+      const trailId = selectedPlaceId.replace('trail:', '');
+      const trail = trails.find(t => t.id === trailId);
+      
+      if (trail) {
+        setActiveTrail(trail);
+        setActivePlace(null);
+        setAlternatives([]);
+
+        // Get all coordinates for the trail
+        const trailCoords: [number, number][] = [];
+        
+        // Highlight related places
+        trail.relatedPlaceIds.forEach(placeId => {
+          const place = places.find(p => p.id === placeId);
+          const marker = placeMarkersRef.current.get(placeId);
+          if (place && marker) {
+            marker.setIcon(createCustomIcon(getCategoryIcon(place.category), colors.trail, true, false));
+            trailCoords.push(place.coordinates);
           }
+        });
 
-          // Draw lines to alternatives and highlight them
-          alts.forEach(alt => {
-            const line = L.polyline(
-              [selectedPlace.coordinates, alt.coordinates],
-              {
-                color: '#22c55e',
-                weight: 3,
-                opacity: 0.8,
-                dashArray: '8, 8',
-              }
-            ).addTo(map);
-            linesRef.current.push(line);
-
-            const altMarker = placeMarkersRef.current.get(alt.id);
-            if (altMarker) {
-              altMarker.setIcon(createCustomIcon(getCategoryIcon(alt.category), '#22c55e', true, false));
-            }
-          });
-
-          // Fit bounds to show all connected places
-          const allCoords = [selectedPlace.coordinates, ...alts.map(a => a.coordinates)];
-          const bounds = L.latLngBounds(allCoords.map(c => L.latLng(c[0], c[1])));
-          map.fitBounds(bounds, { padding: [50, 50] });
-        } else {
-          // Just pan to the selected place
-          setActivePlace(null);
-          setAlternatives([]);
-          map.setView(selectedPlace.coordinates, 14);
-          const marker = placeMarkersRef.current.get(selectedPlaceId);
-          if (marker) {
-            marker.openPopup();
+        // Highlight related artisans
+        trail.relatedArtisanIds?.forEach(artisanId => {
+          const artisan = artisans.find(a => a.id === artisanId);
+          const marker = artisanMarkersRef.current.get(artisanId);
+          if (artisan && marker) {
+            marker.setIcon(createCustomIcon(getCraftIcon(artisan.craft), colors.trail, true, false));
+            trailCoords.push(artisan.coordinates);
           }
+        });
+
+        // Draw trail route connecting all stops
+        if (trailCoords.length > 1) {
+          const line = L.polyline(trailCoords, {
+            color: '#8b5cf6',
+            weight: 4,
+            opacity: 0.8,
+            dashArray: '10, 6',
+          }).addTo(map);
+          linesRef.current.push(line);
+        }
+
+        // Fit bounds to show all trail stops
+        if (trailCoords.length > 0) {
+          const bounds = L.latLngBounds(trailCoords.map(c => L.latLng(c[0], c[1])));
+          map.fitBounds(bounds, { padding: [60, 60] });
         }
         return;
       }
+    }
 
-      // Check if it's an artisan
-      const selectedArtisan = artisans.find(a => a.id === selectedPlaceId);
-      if (selectedArtisan) {
+    // Check if it's a place
+    const selectedPlace = places.find(p => p.id === selectedPlaceId);
+    if (selectedPlace) {
+      setActiveTrail(null);
+      
+      // If it's a high-crowd place, show alternatives
+      if (selectedPlace.crowdLevel === 'high' && selectedPlace.nearbyAlternatives) {
+        setActivePlace(selectedPlace);
+        const alts = getNearbyAlternatives(selectedPlaceId);
+        setAlternatives(alts);
+
+        // Highlight the selected high-crowd marker
+        const mainMarker = placeMarkersRef.current.get(selectedPlaceId);
+        if (mainMarker) {
+          mainMarker.setIcon(createCustomIcon(getCategoryIcon(selectedPlace.category), '#ef4444', true, true));
+        }
+
+        // Draw lines to alternatives and highlight them
+        alts.forEach(alt => {
+          const line = L.polyline(
+            [selectedPlace.coordinates, alt.coordinates],
+            {
+              color: '#22c55e',
+              weight: 3,
+              opacity: 0.8,
+              dashArray: '8, 8',
+            }
+          ).addTo(map);
+          linesRef.current.push(line);
+
+          const altMarker = placeMarkersRef.current.get(alt.id);
+          if (altMarker) {
+            altMarker.setIcon(createCustomIcon(getCategoryIcon(alt.category), '#22c55e', true, false));
+          }
+        });
+
+        // Fit bounds to show all connected places
+        const allCoords = [selectedPlace.coordinates, ...alts.map(a => a.coordinates)];
+        const bounds = L.latLngBounds(allCoords.map(c => L.latLng(c[0], c[1])));
+        map.fitBounds(bounds, { padding: [50, 50] });
+      } else {
+        // Just pan to the selected place
         setActivePlace(null);
         setAlternatives([]);
-        
-        // Highlight the artisan marker
-        const artisanMarker = artisanMarkersRef.current.get(selectedPlaceId);
-        if (artisanMarker) {
-          artisanMarker.setIcon(createCustomIcon(getCraftIcon(selectedArtisan.craft), '#22c55e', true, false));
-          map.setView(selectedArtisan.coordinates, 15);
-          artisanMarker.openPopup();
+        map.setView(selectedPlace.coordinates, 14);
+        const marker = placeMarkersRef.current.get(selectedPlaceId);
+        if (marker) {
+          marker.openPopup();
         }
-        return;
+      }
+      return;
+    }
+
+    // Check if it's an artisan
+    const selectedArtisan = artisans.find(a => a.id === selectedPlaceId);
+    if (selectedArtisan) {
+      setActivePlace(null);
+      setAlternatives([]);
+      setActiveTrail(null);
+      
+      // Highlight the artisan marker
+      const artisanMarker = artisanMarkersRef.current.get(selectedPlaceId);
+      if (artisanMarker) {
+        artisanMarker.setIcon(createCustomIcon(getCraftIcon(selectedArtisan.craft), '#22c55e', true, false));
+        map.setView(selectedArtisan.coordinates, 15);
+        artisanMarker.openPopup();
       }
     }
   }, [selectedPlaceId]);
@@ -226,6 +286,41 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
   return (
     <div className="relative w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-border shadow-card bg-muted">
       <div ref={mapRef} className="w-full h-full min-h-[500px]" />
+
+      {/* Trail Info Panel */}
+      {activeTrail && (
+        <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm rounded-lg p-4 shadow-elevated border border-border z-[1000] max-w-[300px] animate-fade-in">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">{getTrailIcon(activeTrail.id)}</span>
+            <div>
+              <h4 className="font-semibold text-sm text-foreground">{activeTrail.name}</h4>
+              <p className="text-xs text-muted-foreground italic">{activeTrail.tagline}</p>
+            </div>
+          </div>
+          
+          <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950/30 rounded border border-purple-200 dark:border-purple-800">
+            <p className="text-xs text-purple-700 dark:text-purple-300">
+              <strong>Duration:</strong> {activeTrail.duration} • <strong>Distance:</strong> {activeTrail.distance}
+            </p>
+          </div>
+
+          <p className="text-xs text-muted-foreground mb-2">Trail Stops:</p>
+          
+          <div className="space-y-1.5">
+            {activeTrail.stops.map((stop, idx) => (
+              <div
+                key={stop}
+                className="flex items-center gap-2 p-1.5 bg-muted rounded text-xs"
+              >
+                <span className="w-5 h-5 rounded-full bg-purple-500 text-white flex items-center justify-center text-[10px] font-bold">
+                  {idx + 1}
+                </span>
+                <span className="text-foreground">{stop}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Smart Recommendations Panel */}
       {activePlace && alternatives.length > 0 && (
@@ -277,6 +372,10 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
             <div className="flex items-center gap-2">
               <span className="w-3 h-0.5 bg-green-500" style={{ borderStyle: 'dashed' }}></span>
               <span className="text-muted-foreground">Redirect Path</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-0.5 bg-purple-500" style={{ borderStyle: 'dashed' }}></span>
+              <span className="text-muted-foreground">Trail Route</span>
             </div>
           </div>
         </div>
