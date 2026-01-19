@@ -284,8 +284,8 @@ const MapView = ({ selectedPlaceId, showArtisans = true, onPlaceSelect }: MapVie
   }, [selectedPlaceId]);
 
   return (
-    <div className="relative w-full h-full min-h-[500px] rounded-xl overflow-hidden border border-border shadow-card bg-muted">
-      <div ref={mapRef} className="w-full h-full min-h-[500px]" />
+    <div className="relative w-full h-[500px] rounded-xl overflow-hidden border border-border shadow-card bg-muted">
+      <div ref={mapRef} className="w-full h-[500px] z-0" style={{ minHeight: '500px' }} />
 
       {/* Trail Info Panel */}
       {activeTrail && (
