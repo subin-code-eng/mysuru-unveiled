@@ -96,7 +96,7 @@ const HeroSection = ({ onExplore, onViewMap }: HeroSectionProps) => {
               size="lg"
               variant="outline"
               onClick={onViewMap}
-              className="border-white/30 text-primary-foreground hover:bg-white/10 px-8 py-6 text-lg"
+              className="border-white bg-white/10 text-white hover:bg-white/20 px-8 py-6 text-lg backdrop-blur-sm"
             >
               <MapPin className="w-5 h-5 mr-2" />
               View Live Map
