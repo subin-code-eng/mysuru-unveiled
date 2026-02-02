@@ -78,25 +78,50 @@ const Index = () => {
         onViewMap={() => handleNavigate('map')} 
       />
 
-      {/* Mission Statement */}
+      {/* Problem Statement Section */}
       <section className="py-16 bg-muted">
-        <div className="container mx-auto px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Why Decentralise Tourism?
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              While Mysore Palace sees millions of visitors yearly, local artisans struggle for visibility, 
-              heritage streets remain unexplored, and cultural traditions fade. We're changing that by 
-              <span className="text-heritage-gold font-semibold"> redistributing tourist attention</span> to 
-              the people and places that make Mysuru truly special.
-            </p>
-          </motion.div>
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {/* Problem */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-center md:text-left"
+            >
+              <span className="inline-block px-3 py-1 rounded-full bg-destructive/10 text-destructive text-sm font-semibold mb-4">
+                The Problem
+              </span>
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Over-Tourism at Famous Landmarks
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Mysore Palace attracts millions annually while local artisans struggle for visibility, 
+                heritage streets remain unexplored, and cultural traditions fade. Current platforms lack 
+                real-time crowd data and niche artisan discovery features.
+              </p>
+            </motion.div>
+
+            {/* Solution */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-center md:text-left"
+            >
+              <span className="inline-block px-3 py-1 rounded-full bg-silk-green/20 text-silk-green text-sm font-semibold mb-4">
+                Our Solution
+              </span>
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Decentralised Tourism Platform
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                A platform that <span className="text-heritage-gold font-semibold">redistributes tourist attention</span> to 
+                hidden gems, local artisans, and cultural trails — featuring crowd-level indicators, 
+                artisan discovery, and curated walking routes through authentic Mysuru.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 

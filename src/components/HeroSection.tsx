@@ -73,9 +73,9 @@ const HeroSection = ({ onExplore, onViewMap }: HeroSectionProps) => {
             transition={{ delay: 0.4 }}
             className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed"
           >
-            Discover the hidden heritage, meet local artisans, and experience 
-            authentic Mysuru beyond the crowded landmarks. Empowering communities, 
-            preserving culture.
+            While millions crowd the Palace, local artisans struggle for visibility and 
+            cultural traditions fade. We're changing that — redistributing tourist attention 
+            to hidden gems, master craftspeople, and authentic experiences.
           </motion.p>
 
           {/* CTA Buttons */}
