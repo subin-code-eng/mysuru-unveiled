@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, MapPin } from 'lucide-react';
+import { Menu, X, MapPin, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface NavbarProps {
   activeSection: string;
@@ -10,6 +13,12 @@ interface NavbarProps {
 
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out');
+  };
 
   const navItems = [
     { id: 'home', label: 'Home' },
@@ -60,6 +69,26 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                 {item.label}
               </Button>
             ))}
+
+            {user ? (
+              <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+                <span className="text-sm text-muted-foreground hidden lg:flex items-center gap-1.5">
+                  <UserIcon className="w-3.5 h-3.5" />
+                  {user.email?.split('@')[0]}
+                </span>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-1.5" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button asChild variant="default" size="sm" className="ml-2">
+                <Link to="/auth">
+                  <LogIn className="w-4 h-4 mr-1.5" />
+                  Sign In
+                </Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -95,6 +124,19 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                   {item.label}
                 </Button>
               ))}
+              {user ? (
+                <Button variant="outline" className="justify-start" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              ) : (
+                <Button asChild variant="default" className="justify-start">
+                  <Link to="/auth" onClick={() => setIsOpen(false)}>
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Link>
+                </Button>
+              )}
             </div>
           </motion.div>
         )}
