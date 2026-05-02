@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { z } from 'zod';
-import { MapPin, Loader2 } from 'lucide-react';
+import { MapPin, Loader2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,10 @@ const signUpSchema = z.object({
   displayName: z.string().trim().min(2, 'Name must be at least 2 characters').max(50),
   email: z.string().trim().email('Invalid email').max(255),
   password: z.string().min(6, 'Password must be at least 6 characters').max(72),
+  confirmPassword: z.string(),
+}).refine((d) => d.password === d.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 });
 
 const signInSchema = z.object({
@@ -23,13 +27,48 @@ const signInSchema = z.object({
   password: z.string().min(1, 'Password is required').max(72),
 });
 
+const PasswordInput = ({
+  id, value, onChange, autoComplete, minLength,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: string;
+  minLength?: number;
+}) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={show ? 'text' : 'password'}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required
+        minLength={minLength}
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setShow((s) => !s)}
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+        aria-label={show ? 'Hide password' : 'Show password'}
+        tabIndex={-1}
+      >
+        {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+      </button>
+    </div>
+  );
+};
+
 const AuthPage = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
 
   const [signInData, setSignInData] = useState({ email: '', password: '' });
-  const [signUpData, setSignUpData] = useState({ displayName: '', email: '', password: '' });
+  const [signUpData, setSignUpData] = useState({ displayName: '', email: '', password: '', confirmPassword: '' });
 
   useEffect(() => {
     if (!loading && user) navigate('/', { replace: true });
@@ -92,7 +131,7 @@ const AuthPage = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+        <Link to="/auth" className="flex items-center justify-center gap-2 mb-8">
           <div className="w-12 h-12 rounded-full heritage-gradient flex items-center justify-center">
             <MapPin className="w-6 h-6 text-primary-foreground" />
           </div>
@@ -105,7 +144,7 @@ const AuthPage = () => {
         <Card className="border-border/60 shadow-lg">
           <CardHeader>
             <CardTitle className="font-serif text-2xl">Welcome</CardTitle>
-            <CardDescription>Sign in or create an account to save favorites and explore deeper.</CardDescription>
+            <CardDescription>Sign in or create an account to explore Mysuru's hidden heritage.</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
@@ -129,13 +168,11 @@ const AuthPage = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="signin-password"
-                      type="password"
                       autoComplete="current-password"
                       value={signInData.password}
-                      onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                      required
+                      onChange={(v) => setSignInData({ ...signInData, password: v })}
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={submitting}>
@@ -171,16 +208,24 @@ const AuthPage = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="signup-password"
-                      type="password"
                       autoComplete="new-password"
                       value={signUpData.password}
-                      onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                      required
+                      onChange={(v) => setSignUpData({ ...signUpData, password: v })}
                       minLength={6}
                     />
                     <p className="text-xs text-muted-foreground">Minimum 6 characters.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm">Confirm Password</Label>
+                    <PasswordInput
+                      id="signup-confirm"
+                      autoComplete="new-password"
+                      value={signUpData.confirmPassword}
+                      onChange={(v) => setSignUpData({ ...signUpData, confirmPassword: v })}
+                      minLength={6}
+                    />
                   </div>
                   <Button type="submit" className="w-full" disabled={submitting}>
                     {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
