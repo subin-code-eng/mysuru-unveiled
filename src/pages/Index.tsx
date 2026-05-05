@@ -1,4 +1,4 @@
-import { useState, useRef, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -9,8 +9,9 @@ import TrailCard from '@/components/TrailCard';
 import CrowdIndicator from '@/components/CrowdIndicator';
 import Footer from '@/components/Footer';
 import { places, PlaceCategory, CrowdLevel } from '@/data/places';
-import { artisans } from '@/data/artisans';
+import { artisans as staticArtisans, Artisan, CraftType } from '@/data/artisans';
 import { trails } from '@/data/trails';
+import { supabase } from '@/integrations/supabase/client';
 
 const MapView = lazy(() => import('@/components/MapView'));
 
@@ -19,6 +20,35 @@ const Index = () => {
   const [categoryFilter, setCategoryFilter] = useState<PlaceCategory | 'all'>('all');
   const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>();
+  const [dbArtisans, setDbArtisans] = useState<Artisan[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase.from('artisan_profiles').select('*').eq('published', true).order('created_at', { ascending: false });
+      if (!data) return;
+      setDbArtisans(data.map((d): Artisan => ({
+        id: d.id,
+        name: d.name,
+        craft: d.craft as CraftType,
+        specialty: d.specialty,
+        story: d.story,
+        experience: d.experience,
+        location: d.location,
+        coordinates: [12.2958, 76.6394],
+        contact: d.contact ?? undefined,
+        image: d.photo_url ?? '/placeholder.svg',
+        products: d.products ?? [],
+      })));
+    };
+    load();
+    const channel = supabase
+      .channel('artisan_profiles_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'artisan_profiles' }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const artisans = [...dbArtisans, ...staticArtisans];
 
   // Refs for scrolling
   const exploreRef = useRef<HTMLDivElement>(null);

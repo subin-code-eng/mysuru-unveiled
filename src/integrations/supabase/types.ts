@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      artisan_profiles: {
+        Row: {
+          contact: string | null
+          craft: string
+          created_at: string
+          experience: string
+          id: string
+          location: string
+          name: string
+          photo_url: string | null
+          products: string[]
+          published: boolean
+          specialty: string
+          story: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact?: string | null
+          craft: string
+          created_at?: string
+          experience: string
+          id?: string
+          location: string
+          name: string
+          photo_url?: string | null
+          products?: string[]
+          published?: boolean
+          specialty: string
+          story: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact?: string | null
+          craft?: string
+          created_at?: string
+          experience?: string
+          id?: string
+          location?: string
+          name?: string
+          photo_url?: string | null
+          products?: string[]
+          published?: boolean
+          specialty?: string
+          story?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

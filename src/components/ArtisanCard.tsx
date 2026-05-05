@@ -13,7 +13,7 @@ interface ArtisanCardProps {
 }
 
 const ArtisanCard = ({ artisan, onClick, index = 0 }: ArtisanCardProps) => {
-  const artisanImage = getArtisanImage(artisan.id);
+  const artisanImage = getArtisanImage(artisan.id, artisan.image);
 
   return (
     <motion.div

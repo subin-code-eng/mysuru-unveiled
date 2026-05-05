@@ -14,6 +14,6 @@ const artisanImageMap: Record<string, string> = {
   'gowramma-silk': gowrammaSilk,
 };
 
-export const getArtisanImage = (artisanId: string): string => {
-  return artisanImageMap[artisanId] || '/placeholder.svg';
+export const getArtisanImage = (artisanId: string, fallback?: string): string => {
+  return artisanImageMap[artisanId] || fallback || '/placeholder.svg';
 };
