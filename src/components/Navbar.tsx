@@ -72,6 +72,9 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
 
             {user ? (
               <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/register-artisan">Register as Artisan</Link>
+                </Button>
                 <span className="text-sm text-muted-foreground hidden lg:flex items-center gap-1.5">
                   <UserIcon className="w-3.5 h-3.5" />
                   {user.email?.split('@')[0]}
@@ -82,12 +85,17 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                 </Button>
               </div>
             ) : (
-              <Button asChild variant="default" size="sm" className="ml-2">
-                <Link to="/auth">
-                  <LogIn className="w-4 h-4 mr-1.5" />
-                  Sign In
-                </Link>
-              </Button>
+              <div className="flex items-center gap-2 ml-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/register-artisan">Register as Artisan</Link>
+                </Button>
+                <Button asChild variant="default" size="sm">
+                  <Link to="/auth">
+                    <LogIn className="w-4 h-4 mr-1.5" />
+                    Sign In
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
 
