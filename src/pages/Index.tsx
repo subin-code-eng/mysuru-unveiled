@@ -1,4 +1,4 @@
-import { useState, useRef, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -9,8 +9,9 @@ import TrailCard from '@/components/TrailCard';
 import CrowdIndicator from '@/components/CrowdIndicator';
 import Footer from '@/components/Footer';
 import { places, PlaceCategory, CrowdLevel } from '@/data/places';
-import { artisans } from '@/data/artisans';
+import { artisans as staticArtisans, Artisan, CraftType } from '@/data/artisans';
 import { trails } from '@/data/trails';
+import { supabase } from '@/integrations/supabase/client';
 
 const MapView = lazy(() => import('@/components/MapView'));
 
