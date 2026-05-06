@@ -22,7 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/register-artisan" element={<ProtectedRoute><RegisterArtisan /></ProtectedRoute>} />
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
