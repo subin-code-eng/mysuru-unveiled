@@ -14,6 +14,7 @@ interface NavbarProps {
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Guest';
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,7 +78,7 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                 </Button>
                 <span className="text-sm text-muted-foreground hidden lg:flex items-center gap-1.5">
                   <UserIcon className="w-3.5 h-3.5" />
-                  {user.email?.split('@')[0]}
+                  {displayName}
                 </span>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-1.5" />
