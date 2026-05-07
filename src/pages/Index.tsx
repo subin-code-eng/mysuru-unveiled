@@ -258,7 +258,7 @@ const Index = () => {
 
           {/* Artisan Cards Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {artisans.map((artisan, index) => (
+            {filteredArtisans.map((artisan, index) => (
               <ArtisanCard
                 key={artisan.id}
                 artisan={artisan}
