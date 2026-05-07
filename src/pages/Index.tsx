@@ -80,10 +80,15 @@ const Index = () => {
   };
 
   const filteredPlaces = places.filter(place => {
+    if (aiPlaceIds) return aiPlaceIds.includes(place.id);
     const categoryMatch = categoryFilter === 'all' || place.category === categoryFilter;
     const crowdMatch = crowdFilter === 'all' || place.crowdLevel === crowdFilter;
     return categoryMatch && crowdMatch;
   });
+
+  const filteredArtisans = aiArtisanIds
+    ? artisans.filter(a => aiArtisanIds.includes(a.id))
+    : artisans;
 
   const handlePlaceSelect = (placeId: string) => {
     setSelectedPlaceId(placeId);
