@@ -185,6 +185,17 @@ const Index = () => {
             </p>
           </motion.div>
 
+          {/* AI Smart Search */}
+          <div className="mb-6 max-w-3xl mx-auto">
+            <AISearch
+              onResults={(p, a, exp) => { setAiPlaceIds(p); setAiArtisanIds(a); setAiExplanation(exp); }}
+              onClear={() => { setAiPlaceIds(null); setAiArtisanIds(null); setAiExplanation(''); }}
+            />
+            {aiExplanation && (
+              <p className="mt-2 text-sm text-secondary italic text-center">✨ {aiExplanation}</p>
+            )}
+          </div>
+
           {/* Filters */}
           <div className="mb-8">
             <FilterBar
@@ -199,8 +210,9 @@ const Index = () => {
           <div className="mb-6">
             <p className="text-sm text-muted-foreground">
               Showing <span className="font-semibold text-foreground">{filteredPlaces.length}</span> hidden gems
-              {categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
-              {crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
+              {aiPlaceIds && <span> matched by AI</span>}
+              {!aiPlaceIds && categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
+              {!aiPlaceIds && crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
             </p>
           </div>
 
