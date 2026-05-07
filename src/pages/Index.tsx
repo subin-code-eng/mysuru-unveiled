@@ -288,6 +288,11 @@ const Index = () => {
             </p>
           </motion.div>
 
+          {/* AI Trail Generator */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <AITrailGenerator />
+          </div>
+
           {/* Trail Cards */}
           <div className="space-y-6 max-w-4xl mx-auto">
             {trails.map((trail, index) => (
