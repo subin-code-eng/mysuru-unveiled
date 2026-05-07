@@ -61,6 +61,24 @@ const RegisterArtisan = () => {
     setPhotoPreview(URL.createObjectURL(file));
   };
 
+  const enhanceStory = async () => {
+    if (!form.story.trim() || form.story.trim().length < 10) { toast.error('Write at least a few words first.'); return; }
+    setEnhancing(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({ mode: 'enhance_story', story: form.story, name: form.name || 'Artisan', craft: form.craft }),
+      });
+      if (resp.status === 429) { toast.error('Too many requests'); return; }
+      if (resp.status === 402) { toast.error('AI credits exhausted'); return; }
+      const data = await resp.json();
+      if (data.result) { setForm({ ...form, story: data.result }); toast.success('Story enhanced ✨'); }
+    } catch { toast.error('Enhancement failed'); }
+    finally { setEnhancing(false); }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
