@@ -180,7 +180,13 @@ const RegisterArtisan = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="story">Your Story *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="story">Your Story *</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={enhanceStory} disabled={enhancing}>
+                    {enhancing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                    Enhance with AI
+                  </Button>
+                </div>
                 <Textarea id="story" rows={4} placeholder="Tell visitors about your craft and journey..." value={form.story} onChange={(e) => setForm({ ...form, story: e.target.value })} required />
               </div>
 
