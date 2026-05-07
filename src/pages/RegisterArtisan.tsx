@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { z } from 'zod';
-import { Loader2, Upload, ArrowLeft } from 'lucide-react';
+import { Loader2, Upload, ArrowLeft, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ const RegisterArtisan = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
   const [existingId, setExistingId] = useState<string | null>(null);
@@ -58,6 +59,24 @@ const RegisterArtisan = () => {
     if (file.size > 5 * 1024 * 1024) { toast.error('Photo must be under 5MB'); return; }
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const enhanceStory = async () => {
+    if (!form.story.trim() || form.story.trim().length < 10) { toast.error('Write at least a few words first.'); return; }
+    setEnhancing(true);
+    try {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({ mode: 'enhance_story', story: form.story, name: form.name || 'Artisan', craft: form.craft }),
+      });
+      if (resp.status === 429) { toast.error('Too many requests'); return; }
+      if (resp.status === 402) { toast.error('AI credits exhausted'); return; }
+      const data = await resp.json();
+      if (data.result) { setForm({ ...form, story: data.result }); toast.success('Story enhanced ✨'); }
+    } catch { toast.error('Enhancement failed'); }
+    finally { setEnhancing(false); }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -161,7 +180,13 @@ const RegisterArtisan = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="story">Your Story *</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="story">Your Story *</Label>
+                  <Button type="button" size="sm" variant="outline" onClick={enhanceStory} disabled={enhancing}>
+                    {enhancing ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+                    Enhance with AI
+                  </Button>
+                </div>
                 <Textarea id="story" rows={4} placeholder="Tell visitors about your craft and journey..." value={form.story} onChange={(e) => setForm({ ...form, story: e.target.value })} required />
               </div>
 

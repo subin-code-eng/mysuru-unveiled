@@ -7,6 +7,10 @@ import PlaceCard from '@/components/PlaceCard';
 import ArtisanCard from '@/components/ArtisanCard';
 import TrailCard from '@/components/TrailCard';
 import CrowdIndicator from '@/components/CrowdIndicator';
+import AIChatbot from '@/components/AIChatbot';
+import AISearch from '@/components/AISearch';
+import AIRecommender from '@/components/AIRecommender';
+import AITrailGenerator from '@/components/AITrailGenerator';
 import Footer from '@/components/Footer';
 import { places, PlaceCategory, CrowdLevel } from '@/data/places';
 import { artisans as staticArtisans, Artisan, CraftType } from '@/data/artisans';
@@ -21,6 +25,9 @@ const Index = () => {
   const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>();
   const [dbArtisans, setDbArtisans] = useState<Artisan[]>([]);
+  const [aiPlaceIds, setAiPlaceIds] = useState<string[] | null>(null);
+  const [aiArtisanIds, setAiArtisanIds] = useState<string[] | null>(null);
+  const [aiExplanation, setAiExplanation] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -73,10 +80,15 @@ const Index = () => {
   };
 
   const filteredPlaces = places.filter(place => {
+    if (aiPlaceIds) return aiPlaceIds.includes(place.id);
     const categoryMatch = categoryFilter === 'all' || place.category === categoryFilter;
     const crowdMatch = crowdFilter === 'all' || place.crowdLevel === crowdFilter;
     return categoryMatch && crowdMatch;
   });
+
+  const filteredArtisans = aiArtisanIds
+    ? artisans.filter(a => aiArtisanIds.includes(a.id))
+    : artisans;
 
   const handlePlaceSelect = (placeId: string) => {
     setSelectedPlaceId(placeId);
@@ -173,6 +185,17 @@ const Index = () => {
             </p>
           </motion.div>
 
+          {/* AI Smart Search */}
+          <div className="mb-6 max-w-3xl mx-auto">
+            <AISearch
+              onResults={(p, a, exp) => { setAiPlaceIds(p); setAiArtisanIds(a); setAiExplanation(exp); }}
+              onClear={() => { setAiPlaceIds(null); setAiArtisanIds(null); setAiExplanation(''); }}
+            />
+            {aiExplanation && (
+              <p className="mt-2 text-sm text-secondary italic text-center">✨ {aiExplanation}</p>
+            )}
+          </div>
+
           {/* Filters */}
           <div className="mb-8">
             <FilterBar
@@ -187,8 +210,9 @@ const Index = () => {
           <div className="mb-6">
             <p className="text-sm text-muted-foreground">
               Showing <span className="font-semibold text-foreground">{filteredPlaces.length}</span> hidden gems
-              {categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
-              {crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
+              {aiPlaceIds && <span> matched by AI</span>}
+              {!aiPlaceIds && categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
+              {!aiPlaceIds && crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
             </p>
           </div>
 
@@ -234,7 +258,7 @@ const Index = () => {
 
           {/* Artisan Cards Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {artisans.map((artisan, index) => (
+            {filteredArtisans.map((artisan, index) => (
               <ArtisanCard
                 key={artisan.id}
                 artisan={artisan}
@@ -263,6 +287,11 @@ const Index = () => {
               Not just destinations, but journeys through Mysuru's living heritage.
             </p>
           </motion.div>
+
+          {/* AI Trail Generator */}
+          <div className="max-w-4xl mx-auto mb-8">
+            <AITrailGenerator />
+          </div>
 
           {/* Trail Cards */}
           <div className="space-y-6 max-w-4xl mx-auto">
@@ -309,7 +338,8 @@ const Index = () => {
             </div>
 
             {/* Crowd Indicator Sidebar */}
-            <div>
+            <div className="space-y-4">
+              <AIRecommender />
               <CrowdIndicator onPlaceSelect={handlePlaceSelect} />
             </div>
           </div>
@@ -351,6 +381,7 @@ const Index = () => {
       </section>
 
       <Footer />
+      <AIChatbot />
     </div>
   );
 };
