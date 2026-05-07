@@ -25,6 +25,9 @@ const Index = () => {
   const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>();
   const [dbArtisans, setDbArtisans] = useState<Artisan[]>([]);
+  const [aiPlaceIds, setAiPlaceIds] = useState<string[] | null>(null);
+  const [aiArtisanIds, setAiArtisanIds] = useState<string[] | null>(null);
+  const [aiExplanation, setAiExplanation] = useState('');
 
   useEffect(() => {
     const load = async () => {
