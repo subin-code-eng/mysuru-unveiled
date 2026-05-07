@@ -338,7 +338,8 @@ const Index = () => {
             </div>
 
             {/* Crowd Indicator Sidebar */}
-            <div>
+            <div className="space-y-4">
+              <AIRecommender />
               <CrowdIndicator onPlaceSelect={handlePlaceSelect} />
             </div>
           </div>
