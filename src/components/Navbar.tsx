@@ -51,9 +51,9 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
             </div>
             <div className="hidden sm:block">
               <h1 className="font-serif text-lg font-bold text-foreground leading-tight">
-                Mysuru Beyond
+                {t('nav.brand')}
               </h1>
-              <p className="text-xs text-muted-foreground -mt-0.5">Decentralised Tourism</p>
+              <p className="text-xs text-muted-foreground -mt-0.5">{t('nav.tagline')}</p>
             </div>
           </motion.div>
 
