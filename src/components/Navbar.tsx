@@ -138,16 +138,19 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                   {item.label}
                 </Button>
               ))}
+              <div className="pt-2 border-t border-border">
+                <LanguageSwitcher />
+              </div>
               {user ? (
                 <Button variant="outline" className="justify-start" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </Button>
               ) : (
                 <Button asChild variant="default" className="justify-start">
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
+                    {t('nav.signIn')}
                   </Link>
                 </Button>
               )}
