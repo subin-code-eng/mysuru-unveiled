@@ -77,26 +77,28 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
             {user ? (
               <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/register-artisan">Register as Artisan</Link>
+                  <Link to="/register-artisan">{t('nav.registerArtisan')}</Link>
                 </Button>
                 <span className="text-sm text-muted-foreground hidden lg:flex items-center gap-1.5">
                   <UserIcon className="w-3.5 h-3.5" />
                   {displayName}
                 </span>
+                <LanguageSwitcher />
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-1.5" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/register-artisan">Register as Artisan</Link>
+                  <Link to="/register-artisan">{t('nav.registerArtisan')}</Link>
                 </Button>
+                <LanguageSwitcher />
                 <Button asChild variant="default" size="sm">
                   <Link to="/auth">
                     <LogIn className="w-4 h-4 mr-1.5" />
-                    Sign In
+                    {t('nav.signIn')}
                   </Link>
                 </Button>
               </div>
