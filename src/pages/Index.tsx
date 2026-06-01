@@ -1,5 +1,6 @@
 import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import FilterBar from '@/components/FilterBar';
@@ -20,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 const MapView = lazy(() => import('@/components/MapView'));
 
 const Index = () => {
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState('home');
   const [categoryFilter, setCategoryFilter] = useState<PlaceCategory | 'all'>('all');
   const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
@@ -132,15 +134,13 @@ const Index = () => {
               className="text-center md:text-left"
             >
               <span className="inline-block px-3 py-1 rounded-full bg-destructive/10 text-destructive text-sm font-semibold mb-4">
-                The Problem
+                {t('problem.badge')}
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Over-Tourism at Famous Landmarks
+                {t('problem.title')}
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Mysore Palace attracts millions annually while local artisans struggle for visibility, 
-                heritage streets remain unexplored, and cultural traditions fade. Current platforms lack 
-                real-time crowd data and niche artisan discovery features.
+                {t('problem.body')}
               </p>
             </motion.div>
 
@@ -152,15 +152,13 @@ const Index = () => {
               className="text-center md:text-left"
             >
               <span className="inline-block px-3 py-1 rounded-full bg-silk-green/20 text-silk-green text-sm font-semibold mb-4">
-                Our Solution
+                {t('solution.badge')}
               </span>
               <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Decentralised Tourism Platform
+                {t('solution.title')}
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                A platform that <span className="text-heritage-gold font-semibold">redistributes tourist attention</span> to 
-                hidden gems, local artisans, and cultural trails — featuring crowd-level indicators, 
-                artisan discovery, and curated walking routes through authentic Mysuru.
+                {t('solution.body')}
               </p>
             </motion.div>
           </div>
@@ -177,11 +175,10 @@ const Index = () => {
             className="text-center mb-8"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Hidden Gems Explorer
+              {t('explore.title')}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Discover lesser-known treasures across Mysuru. Filter by category and crowd level 
-              to find your perfect off-the-beaten-path experience.
+              {t('explore.subtitle')}
             </p>
           </motion.div>
 
@@ -209,10 +206,8 @@ const Index = () => {
           {/* Results Count */}
           <div className="mb-6">
             <p className="text-sm text-muted-foreground">
-              Showing <span className="font-semibold text-foreground">{filteredPlaces.length}</span> hidden gems
-              {aiPlaceIds && <span> matched by AI</span>}
-              {!aiPlaceIds && categoryFilter !== 'all' && <span> in <span className="capitalize">{categoryFilter}</span></span>}
-              {!aiPlaceIds && crowdFilter !== 'all' && <span> with <span className="capitalize">{crowdFilter}</span> crowd level</span>}
+              {t('explore.showing')} <span className="font-semibold text-foreground">{filteredPlaces.length}</span> {t('explore.hiddenGems')}
+              {aiPlaceIds && <span> {t('explore.matchedByAI')}</span>}
             </p>
           </div>
 
@@ -231,7 +226,7 @@ const Index = () => {
           {filteredPlaces.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">
-                No places match your current filters. Try adjusting your selection.
+                {t('explore.noResults')}
               </p>
             </div>
           )}
@@ -248,11 +243,10 @@ const Index = () => {
             className="text-center mb-8"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Meet Local Artisans
+              {t('artisans.title')}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Connect with master craftspeople who've dedicated their lives to preserving 
-              Mysuru's artistic heritage. Every purchase supports their livelihood and tradition.
+              {t('artisans.subtitle')}
             </p>
           </motion.div>
 
@@ -280,11 +274,10 @@ const Index = () => {
             className="text-center mb-8"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Cultural Routes
+              {t('trails.title')}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Curated walking and cycling routes that connect multiple experiences. 
-              Not just destinations, but journeys through Mysuru's living heritage.
+              {t('trails.subtitle')}
             </p>
           </motion.div>
 
@@ -317,18 +310,17 @@ const Index = () => {
             className="text-center mb-8"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Interactive Map
+              {t('map.title')}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Explore all hidden gems and artisan locations on our live map. 
-              Click markers for details and plan your decentralised tourism route.
+              {t('map.subtitle')}
             </p>
           </motion.div>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Map */}
             <div className="lg:col-span-2 h-[600px]">
-              <Suspense fallback={<div className="flex items-center justify-center h-full bg-muted rounded-xl"><p className="text-muted-foreground">Loading map...</p></div>}>
+              <Suspense fallback={<div className="flex items-center justify-center h-full bg-muted rounded-xl"><p className="text-muted-foreground">{t('map.loading')}</p></div>}>
                 <MapView
                   selectedPlaceId={selectedPlaceId}
                   showArtisans={true}
@@ -356,24 +348,23 @@ const Index = () => {
             className="max-w-2xl mx-auto"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-              Be Part of the Change
+              {t('cta.title')}
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Every visit to a hidden gem, every purchase from a local artisan, 
-              every step on a cultural trail contributes to sustainable tourism.
+              {t('cta.body')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => handleNavigate('explore')}
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors shadow-gold"
               >
-                Start Exploring
+                {t('cta.startExploring')}
               </button>
               <button
                 onClick={() => handleNavigate('artisans')}
                 className="px-8 py-4 bg-white/10 text-primary-foreground rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20"
               >
-                Meet Artisans
+                {t('cta.meetArtisans')}
               </button>
             </div>
           </motion.div>

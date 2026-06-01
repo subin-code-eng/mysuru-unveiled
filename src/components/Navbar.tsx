@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, MapPin, LogIn, LogOut, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface NavbarProps {
   activeSection: string;
@@ -14,6 +16,7 @@ interface NavbarProps {
 const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || 'Guest';
 
   const handleSignOut = async () => {
@@ -22,11 +25,11 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
   };
 
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'explore', label: 'Explore' },
-    { id: 'artisans', label: 'Artisans' },
-    { id: 'trails', label: 'Trails' },
-    { id: 'map', label: 'Map' },
+    { id: 'home', label: t('nav.home') },
+    { id: 'explore', label: t('nav.explore') },
+    { id: 'artisans', label: t('nav.artisans') },
+    { id: 'trails', label: t('nav.trails') },
+    { id: 'map', label: t('nav.map') },
   ];
 
   return (
@@ -48,9 +51,9 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
             </div>
             <div className="hidden sm:block">
               <h1 className="font-serif text-lg font-bold text-foreground leading-tight">
-                Mysuru Beyond
+                {t('nav.brand')}
               </h1>
-              <p className="text-xs text-muted-foreground -mt-0.5">Decentralised Tourism</p>
+              <p className="text-xs text-muted-foreground -mt-0.5">{t('nav.tagline')}</p>
             </div>
           </motion.div>
 
@@ -74,26 +77,28 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
             {user ? (
               <div className="flex items-center gap-2 ml-2 pl-2 border-l border-border">
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/register-artisan">Register as Artisan</Link>
+                  <Link to="/register-artisan">{t('nav.registerArtisan')}</Link>
                 </Button>
                 <span className="text-sm text-muted-foreground hidden lg:flex items-center gap-1.5">
                   <UserIcon className="w-3.5 h-3.5" />
                   {displayName}
                 </span>
+                <LanguageSwitcher />
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-1.5" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/register-artisan">Register as Artisan</Link>
+                  <Link to="/register-artisan">{t('nav.registerArtisan')}</Link>
                 </Button>
+                <LanguageSwitcher />
                 <Button asChild variant="default" size="sm">
                   <Link to="/auth">
                     <LogIn className="w-4 h-4 mr-1.5" />
-                    Sign In
+                    {t('nav.signIn')}
                   </Link>
                 </Button>
               </div>
@@ -133,16 +138,19 @@ const Navbar = ({ activeSection, onNavigate }: NavbarProps) => {
                   {item.label}
                 </Button>
               ))}
+              <div className="pt-2 border-t border-border">
+                <LanguageSwitcher />
+              </div>
               {user ? (
                 <Button variant="outline" className="justify-start" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {t('nav.signOut')}
                 </Button>
               ) : (
                 <Button asChild variant="default" className="justify-start">
                   <Link to="/auth" onClick={() => setIsOpen(false)}>
                     <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
+                    {t('nav.signIn')}
                   </Link>
                 </Button>
               )}
