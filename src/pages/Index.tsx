@@ -1,5 +1,6 @@
 import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import FilterBar from '@/components/FilterBar';
@@ -20,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 const MapView = lazy(() => import('@/components/MapView'));
 
 const Index = () => {
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState('home');
   const [categoryFilter, setCategoryFilter] = useState<PlaceCategory | 'all'>('all');
   const [crowdFilter, setCrowdFilter] = useState<'all' | CrowdLevel>('all');
