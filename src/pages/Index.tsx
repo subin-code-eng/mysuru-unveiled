@@ -348,24 +348,23 @@ const Index = () => {
             className="max-w-2xl mx-auto"
           >
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-              Be Part of the Change
+              {t('cta.title')}
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8">
-              Every visit to a hidden gem, every purchase from a local artisan, 
-              every step on a cultural trail contributes to sustainable tourism.
+              {t('cta.body')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => handleNavigate('explore')}
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/90 transition-colors shadow-gold"
               >
-                Start Exploring
+                {t('cta.startExploring')}
               </button>
               <button
                 onClick={() => handleNavigate('artisans')}
                 className="px-8 py-4 bg-white/10 text-primary-foreground rounded-lg font-semibold hover:bg-white/20 transition-colors border border-white/20"
               >
-                Meet Artisans
+                {t('cta.meetArtisans')}
               </button>
             </div>
           </motion.div>
